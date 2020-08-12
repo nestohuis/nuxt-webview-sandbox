@@ -13,7 +13,7 @@ export default {
   asyncData() {
     return {
       title: 'This is Nuxt',
-      description: 'and this is madness..',
+      description: 'and this is builder..',
     };
   },
 
