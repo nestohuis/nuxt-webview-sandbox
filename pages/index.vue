@@ -21,6 +21,7 @@ export default {
     return {
       title: 'Nuxt.js Sandbox',
       description: '',
+      useragent: null,
     };
   },
 };
