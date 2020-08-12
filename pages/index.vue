@@ -11,6 +11,7 @@
         <li>isWebview: <strong>{{ ua.isWebview }}</strong></li>
         <li>isAndroid: <strong>{{ ua.isAndroid }}</strong></li>
         <li>isIOS: <strong>{{ ua.isIOS }}</strong></li>
+        <li>isIOSStandalone: <strong>{{ ua.isIOSStandalone }}</strong></li>
         <li>isIframe: <strong>{{ ua.isIframe }}</strong></li>
       </ul>
     </div>
@@ -41,6 +42,7 @@ export default {
         isIframe: null,
         userAgent: null,
         isIOS: null,
+        isIOSStandalone: null,
         isAndroid: null,
       },
     };
@@ -57,13 +59,14 @@ export default {
         isIframe: this.isIframe(),
         userAgent: this.userAgent(),
         isIOS: this.isIOS(),
+        isIOSStandalone: this.isIOSStandalone(),
         isAndroid: this.isAndroid(),
       };
     },
 
     isWebview() {
-      const webview = isWebview(navigator.userAgent);
-      return (webview || this.isAndroid || this.isIOS);
+      return isWebview(navigator.userAgent);
+      // return (webview || this.isAndroid || this.isIOS);
     },
 
     isIframe() {
@@ -77,6 +80,13 @@ export default {
     userAgent() {
       // if (!process.server) return '';
       return navigator.userAgent.toLowerCase();
+    },
+
+    isIOSStandalone() {
+      const ios = /iphone|ipod|ipad/.test(this.userAgent);
+      const safari = /safari/.test(this.userAgent);
+      if (ios && !safari) return true;
+      return false;
     },
 
     isIOS() {
