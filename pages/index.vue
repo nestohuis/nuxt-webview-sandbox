@@ -1,19 +1,46 @@
 <template>
-  <div class="container">
+  <div class="wrapper">
     <div>
-      <Logo />
-      <h1 class="title">{{ title }}</h1>
-      <p v-if="description" class="subtitle">{{ description }}</p>
+      <h1 :class="{ 'noway': !deviceWebview }">
+        <template v-if="ua.isWebview && ua.isAndroid">Android Webview</template>
+        <template v-else-if="ua.isWebview && ua.isIOS">iOS Webview</template>
+        <template v-else>Browser</template>
+      </h1>
 
-      <ul>
-        <li>Headers: {{ headers }}</li>
-        <li>userAgent: <strong>{{ ua.userAgent }}</strong></li>
-        <li>isWebview: <strong>{{ ua.isWebview }}</strong></li>
-        <li>isAndroid: <strong>{{ ua.isAndroid }}</strong></li>
-        <li>isIOS: <strong>{{ ua.isIOS }}</strong></li>
-        <li>isIOSStandalone: <strong>{{ ua.isIOSStandalone }}</strong></li>
-        <li>isIframe: <strong>{{ ua.isIframe }}</strong></li>
-      </ul>
+      <div class="container">
+        <div v-if="headers" class="list">
+          Server Request Headers
+          <span>{{ headers }}</span>
+        </div>
+        <div class="list">
+          Browser User Agent
+          <span>{{ ua.userAgent }}</span>
+        </div>
+        <div class="list">
+          isWebview:
+          <span :class="{ 'true': ua.isWebview }">
+            {{ ua.isWebview }}
+          </span>
+        </div>
+        <div class="list">
+          isAndroid Webview:
+          <span :class="{ 'true': ua.isAndroid }">
+            {{ ua.isAndroid }}
+          </span>
+        </div>
+        <div class="list">
+          isIOS Webview:
+          <span :class="{ 'true': ua.isIOS }">
+            {{ ua.isIOS }}
+          </span>
+        </div>
+        <div class="list">
+          isIframe:
+          <span :class="{ 'true': ua.isIframe }">
+            {{ ua.isIframe }}
+          </span>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -23,20 +50,16 @@ import isWebview from 'is-ua-webview';
 
 export default {
   asyncData(context) {
-    const requestHeaders = (process.server) ? context.req.headers['user-agent'] : null;
-
     return {
-      title: 'This is Nuxt',
-      description: 'and this is builder..',
-      headers: requestHeaders,
+      headers: (process.server) ? context.req.headers['user-agent'] : null,
     };
   },
 
   data() {
     return {
-      title: 'Nuxt.js Sandbox',
-      description: '',
       headers: null,
+      deviceWebview: false,
+
       ua: {
         isWebview: null,
         isIframe: null,
@@ -55,18 +78,18 @@ export default {
   methods: {
     init() {
       this.ua = {
-        isWebview: this.isWebview(),
-        isIframe: this.isIframe(),
         userAgent: this.userAgent(),
-        isIOS: this.isIOS(),
-        isIOSStandalone: this.isIOSStandalone(),
+        isWebview: isWebview(navigator.userAgent),
+        isIframe: this.isIframe(),
         isAndroid: this.isAndroid(),
+        isIOS: this.isIOS(),
       };
+
+      this.deviceWebview = this.ua.isWebview;
     },
 
     isWebview() {
       return isWebview(navigator.userAgent);
-      // return (webview || this.isAndroid || this.isIOS);
     },
 
     isIframe() {
@@ -78,68 +101,84 @@ export default {
     },
 
     userAgent() {
-      // if (!process.server) return '';
       return navigator.userAgent.toLowerCase();
     },
 
-    isIOSStandalone() {
-      const ios = /iphone|ipod|ipad/.test(this.userAgent);
-      const safari = /safari/.test(this.userAgent);
-      if (ios && !safari) return true;
-      return false;
-    },
-
     isIOS() {
-      const { standalone } = navigator.userAgent;
-      const safari = /safari/.test(this.userAgent);
-      const ios = /iphone|ipod|ipad/.test(this.userAgent);
-      if (ios && !safari && !standalone) return true;
-      return false;
+      const ua = navigator.userAgent.toLowerCase();
+      const { standalone } = navigator;
+      const safari = /safari/.test(ua);
+      const ios = /iphone|ipod|ipad/.test(ua);
+      return (ios && !safari && !standalone);
     },
 
     isAndroid() {
-      const android = /android/.test(this.userAgent);
-      const wv = /wv/.test(this.userAgent);
-      if (android && wv) return true;
-      return false;
+      const ua = navigator.userAgent.toLowerCase();
+      const android = /android/.test(ua);
+      const wv = /wv/.test(ua);
+      return (android && wv);
     },
   },
 };
 </script>
 
 <style>
-.container {
-  margin: 0 auto;
-  min-height: 100vh;
+.wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
+  min-height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background-color: #2c2c54;
+  color:  #fff;
 }
 
-.title {
-  font-family:
-    'Quicksand',
-    'Source Sans Pro',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    'Helvetica Neue',
-    Arial,
-    sans-serif;
+.container {
+  margin: 0 auto;
+  width: 90%;
+  max-width: 400px;
+  /* padding: 2rem; */
+  /* border-radius: 1rem;
+  background-color: rgba(255, 255, 255, 0.02);
+  box-shadow: 0px 0.75rem 1.5rem -0.5rem rgba(0,0,0, 0.25); */
+}
+
+h1 {
   display: block;
-  margin: 1rem 0;
-  font-weight: 300;
-  font-size: 3rem;
-  color: #35495e;
-  letter-spacing: 1px;
+  margin: 2rem auto;
+  line-height: 1;
+  text-align: center;
 }
 
-.subtitle {
-  font-weight: 300;
-  font-size: 1.5rem;
-  color: #526488;
-  word-spacing: 5px;
-  padding-bottom: 15px;
+h1.noway {
+  color:  rgba(255, 255, 255, 0.6);
+}
+
+.list {
+  margin-bottom: 1.5rem;
+  font-size: 13px;
+  color:  rgba(255, 255, 255, 0.6);
+}
+
+.list:last-child {
+  margin-bottom: 0;
+}
+
+.list span {
+  display: block;
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.5rem;
+  font-family: monospace, monospace;
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+  font-weight: bold;
+}
+
+.list span.true {
+  background-color: #4cd137;
+  font-weight: bold;
+  color: #000;
 }
 </style>
