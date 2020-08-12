@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@nuxtjs/now-builder": "^0.17.3",
+    "is-ua-webview": "^1.0.5",
     "nuxt": "^2.14.0"
   },
   "devDependencies": {

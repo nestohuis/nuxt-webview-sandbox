@@ -4,16 +4,30 @@
       <Logo />
       <h1 class="title">{{ title }}</h1>
       <p v-if="description" class="subtitle">{{ description }}</p>
+
+      <ul>
+        <li>Headers: {{ headers }}</li>
+        <li>userAgent: <strong>{{ ua.userAgent }}</strong></li>
+        <li>isWebview: <strong>{{ ua.isWebview }}</strong></li>
+        <li>isAndroid: <strong>{{ ua.isAndroid }}</strong></li>
+        <li>isIOS: <strong>{{ ua.isIOS }}</strong></li>
+        <li>isIframe: <strong>{{ ua.isIframe }}</strong></li>
+      </ul>
     </div>
   </div>
 </template>
 
 <script>
+import isWebview from 'is-ua-webview';
+
 export default {
-  asyncData() {
+  asyncData(context) {
+    const requestHeaders = (process.server) ? context.req.headers['user-agent'] : null;
+
     return {
       title: 'This is Nuxt',
       description: 'and this is builder..',
+      headers: requestHeaders,
     };
   },
 
@@ -21,8 +35,64 @@ export default {
     return {
       title: 'Nuxt.js Sandbox',
       description: '',
-      useragent: null,
+      headers: null,
+      ua: {
+        isWebview: null,
+        isIframe: null,
+        userAgent: null,
+        isIOS: null,
+        isAndroid: null,
+      },
     };
+  },
+
+  mounted() {
+    this.init();
+  },
+
+  methods: {
+    init() {
+      this.ua = {
+        isWebview: this.isWebview(),
+        isIframe: this.isIframe(),
+        userAgent: this.userAgent(),
+        isIOS: this.isIOS(),
+        isAndroid: this.isAndroid(),
+      };
+    },
+
+    isWebview() {
+      const webview = isWebview(navigator.userAgent);
+      return (webview || this.isAndroid || this.isIOS);
+    },
+
+    isIframe() {
+      try {
+        return window.self !== window.top;
+      } catch (e) {
+        return true;
+      }
+    },
+
+    userAgent() {
+      // if (!process.server) return '';
+      return navigator.userAgent.toLowerCase();
+    },
+
+    isIOS() {
+      const { standalone } = navigator.userAgent;
+      const safari = /safari/.test(this.userAgent);
+      const ios = /iphone|ipod|ipad/.test(this.userAgent);
+      if (ios && !safari && !standalone) return true;
+      return false;
+    },
+
+    isAndroid() {
+      const android = /android/.test(this.userAgent);
+      const wv = /wv/.test(this.userAgent);
+      if (android && wv) return true;
+      return false;
+    },
   },
 };
 </script>
@@ -34,7 +104,6 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  text-align: center;
 }
 
 .title {
