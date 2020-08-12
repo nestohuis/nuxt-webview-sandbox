@@ -11,6 +11,7 @@
     "lint": "npm run lint:js"
   },
   "dependencies": {
+    "@nuxtjs/now-builder": "^0.17.3",
     "nuxt": "^2.14.0"
   },
   "devDependencies": {
