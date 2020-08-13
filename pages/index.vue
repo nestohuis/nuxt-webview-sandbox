@@ -40,6 +40,12 @@
             {{ ua.isIframe }}
           </span>
         </div>
+        <div class="list">
+          maxTouchPoints:
+          <span :class="{ 'true': ua.maxTouchPoints }">
+            {{ ua.maxTouchPoints }}
+          </span>
+        </div>
       </div>
     </div>
   </div>
@@ -65,8 +71,8 @@ export default {
         isIframe: null,
         userAgent: null,
         isIOS: null,
-        isIOSStandalone: null,
         isAndroid: null,
+        maxTouchPoints: null,
       },
     };
   },
@@ -83,6 +89,7 @@ export default {
         isIframe: this.isIframe(),
         isAndroid: this.isAndroid(),
         isIOS: this.isIOS(),
+        maxTouchPoints: navigator.maxTouchPoints,
       };
 
       this.deviceWebview = this.ua.isWebview;
